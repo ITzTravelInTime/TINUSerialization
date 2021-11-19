@@ -14,7 +14,7 @@ Library with useful extensions to `Decodable` and `Encodable` types, including s
 
 This library should be used by Swift apps/programs that needs to operate with JSON/Plist files, either locally or remotely.
 
-This code is tested on macOS only, it might also work on other Apple's OSes for the non-macOS-specific features but it's untested.
+This code is tested on macOS, iPadOS, iOS and macCatalyst only.
 
 # About the project
 
@@ -25,6 +25,7 @@ Also having it as it's own library allows for code to be updated separately and 
 # Libraries used
 
  - [ITzTravelInTime/TINURecovery](https://github.com/ITzTravelInTime/TINURecovery)
+ - [ITzTravelInTime/SwiftLoggedPrint](https://github.com/ITzTravelInTime/SwiftLoggedPrint)
 
 # Credits
 
@@ -34,7 +35,7 @@ Also having it as it's own library allows for code to be updated separately and 
 
  - ITzTravelInTime (Pietro Caruso): piecaruso97@gmail.com
 
-# Copyright
+# Legal info
 
 TINUSerialization: A library for the usage of serialization formats in Swift.
 Copyright (C) 2021 Pietro Caruso

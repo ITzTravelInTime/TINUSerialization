@@ -13,11 +13,18 @@ import Foundation
 import TINURecovery
 
 public extension Encodable{
-    func json(prettyPrinted: Bool = false) -> String?{
+    /**
+     Gets the current object encoded as a JSON string.
+     
+     - Parameter usingFormatting: Use this parameter to change the readbility of the printed string.
+     
+     - Returns: A `String?` containing the current object encoded using the JSON format. `nil` will be returned if the encoding process fails.
+     */
+    func json(usingFormatting formatting: JSONEncoder.OutputFormatting! = nil) -> String?{
         let encoder = JSONEncoder()
         
-        if prettyPrinted{
-            encoder.outputFormatting = .prettyPrinted
+        if let f = formatting{
+            encoder.outputFormatting = f
         }
         
         var str: String?
@@ -31,6 +38,11 @@ public extension Encodable{
         return str
     }
     
+    /**
+     Gets the current object encoded as a Plist (Property list) string.
+     
+     - Returns: A `String?` containing the current object encoded using the Plist (Property list) format. `nil` will be returned if the encoding process fails
+     */
     func plist() -> String?{
         let encoder = PropertyListEncoder()
         encoder.outputFormat = .xml
@@ -47,6 +59,11 @@ public extension Encodable{
 }
 
 public extension Decodable{
+    /**
+     Initializes the current class from a string containg JSON serialized data.
+     
+     - Parameter fromJSONSerialisedString: The `String` containing JSON encoded data to be used for the initialization.
+     */
     init?(fromJSONSerialisedString json: String){
         let decoder = JSONDecoder()
         
@@ -59,6 +76,11 @@ public extension Decodable{
         }
     }
     
+    /**
+     Initializes the current class from a string containg Plist (Property list) serialized data.
+     
+     - Parameter fromPlistSerialisedString: The `String` containing Plist (Property list) encoded data to be used for the initialization.
+     */
     init?(fromPlistSerialisedString plist: String){
         let decoder = PropertyListDecoder()
         
@@ -71,39 +93,87 @@ public extension Decodable{
         }
     }
     
-    private init?(fromFilePath path: String, isJson: Bool) {
-        do{
-            guard let tempData = try String(data: Data(contentsOf: URL(fileURLWithPath: path ) ), encoding: .utf8) else{
-                return nil
-            }
-            
-            if isJson{
-                self.init(fromJSONSerialisedString: tempData)
-            }else{
-                self.init(fromPlistSerialisedString: tempData)
-            }
-            
-        }catch{
+    /**
+     Initializes the current class from a string containing serialized data in either JSON or Plist (Property list) formats.
+     
+     - Parameter fromSerializedString: The `String` containing serialized data in either JSON or Plist (Property list) formats to be used for the initialization.
+     */
+    init?(fromSerializedString string: String){
+        //ineffiecient, there might be a better way
+        if let _ = Self.init(fromJSONSerialisedString: string){
+            self.init(fromJSONSerialisedString: string)
+        }else if let _ = Self.init(fromPlistSerialisedString: string){
+            self.init(fromPlistSerialisedString: string)
+        }else{
             return nil
         }
     }
     
-    init?(fromJSONFilePath path: String){
-        self.init(fromFilePath: path, isJson: true)
+    /**
+     Initializes the current class from a `Data` object encoding a string containing serialized information in either JSON or Plist (Property list) formats.
+     
+     - Parameter fromData: The `Data` containing serialized information (as a string) in either JSON or Plist (Property list) formats to be used for the initialization.
+     - Parameter encoding: The `String.Encoding` to be used for the interpreatation fo the provvided data.
+     */
+    init?(fromData data: Data, usingEncoding encoding: String.Encoding = .utf8){
+        
+        guard let string = String(data: data, encoding: encoding) else{
+            debug("Can't convert the data to a valid string using the provvided encoding.")
+            return nil
+        }
+        
+        self.init(fromSerializedString: string)
     }
     
-    init?(fromJSONFile url: URL) {
-        self.init(fromFilePath: url.path, isJson: true)
+    /**
+     Initializes the current class from a local file encoded in either JSON or Plist (Property list) formats.
+     
+     - Parameter fromFileAt: The `URL` of the file to be used for initialization (must be either JSON or Plist fromattaed).
+     - Parameter encoding: The `String.Encoding` to be used for the initialization of the readed text.
+     */
+    init?(fromFileAt url: URL, usingEncoding encoding: String.Encoding = .utf8) {
+        var isDirectory: ObjCBool = .init(booleanLiteral: false)
+        if !FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory){
+            debug("The provvided file doesn't exist")
+            return nil
+        }else if isDirectory.boolValue{
+            debug("The provvided file is a folder!")
+            return nil
+        }
+        
+        var tdata: Data!
+        
+        do{
+            tdata = try Data(contentsOf: url )
+        }catch let err{
+            debug("Can't get valid data from file, error: \(err.localizedDescription)")
+            return nil
+        }
+        
+        guard let data = tdata else{
+            debug("Didn't get any file data!")
+            return nil
+        }
+        
+        self.init(fromData: data, usingEncoding: encoding)
     }
     
-    init?(fromPlistFilePath path: String) {
-        self.init(fromFilePath: path, isJson: false)
+    /**
+     Initializes the current class from a local file encoded in either JSON or Plist (Property list) formats.
+     
+     - Parameter fromFileAtPath: The `String` path of the file to be used for initialization (must be either JSON or Plist fromattaed).
+     - Parameter encoding: The `String.Encoding` to be used for the initialization of the readed text.
+     */
+    init?(fromFileAtPath file: String){
+        self.init(fromFileAt: URL(fileURLWithPath: file))
     }
     
-    init?(fromPlistFile url: URL) {
-        self.init(fromFilePath: url.path, isJson: false)
-    }
-    
+    /**
+     Initializes the current class from a remote file encoded in either JSON or Plist (Property list) formats.
+     
+     - Parameter fromRemoteFileAt: The `URL` of the remote file to be used for initialization (must be either JSON or Plist fromattaed).
+     
+     */
     init?(fromRemoteFileAt url: URL) {
         
         if !SimpleReachability.status {
@@ -129,35 +199,38 @@ public extension Decodable{
         _ = semaphore.wait(timeout: .distantFuture)
         
         if let e = error {
-            log("Error while getting the update information from the stored update link: \(e.localizedDescription)")
+            debug("Error while getting the update information from the stored update link: \(e.localizedDescription)")
             return nil
         }
         
         guard let safeResponse = response else{
-            log("Invalid or missing url request response")
+            debug("Invalid or missing url request response")
             return nil
         }
         
         let encoding = String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringConvertIANACharSetNameToEncoding(NSString(string: safeResponse.textEncodingName ?? "utf8") as CFString)))
         
-        guard let dataSafe = data else{
-            log("Invalid or no data recovered from url request")
+        guard let safeData = data else{
+            debug("Didn't get any remote data!")
             return nil
         }
         
-        guard let string = String(data: dataSafe, encoding: encoding) else{
-            log("Can't convert the url request data to a string")
+        self.init(fromData: safeData, usingEncoding: encoding)
+        
+    }
+    
+    /**
+     Initializes the current class from a remote file encoded in either JSON or Plist (Property list) formats.
+     
+     - Parameter fromRemoteFileAtUrl: The `String` of the url of the remote file to be used for initialization (must be either JSON or Plist fromattaed).
+     
+     */
+    init?(fromRemoteFileAtUrl url: String){
+        guard let url = URL(string: url) else{
+            debug("Can't get valid URL object from the provvided url string")
             return nil
         }
         
-        //ineffiecient, there might be a better way
-        if let _ = Self.init(fromJSONSerialisedString: string){
-            self.init(fromJSONSerialisedString: string)
-        }else if let _ = Self.init(fromPlistSerialisedString: string){
-            self.init(fromPlistSerialisedString: string)
-        }else{
-            return nil
-        }
-        
+        self.init(fromRemoteFileAt: url )
     }
 }
