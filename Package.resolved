@@ -5,18 +5,18 @@
         "package": "SwiftLoggedPrint",
         "repositoryURL": "https://github.com/ITzTravelInTime/SwiftLoggedPrint",
         "state": {
-          "branch": "main",
+          "branch": null,
           "revision": "5236d5d1bcf0306d316bb6ac0af9ee6f07894f2f",
-          "version": null
+          "version": "3.2.0"
         }
       },
       {
         "package": "TINURecovery",
         "repositoryURL": "https://github.com/ITzTravelInTime/TINURecovery",
         "state": {
-          "branch": "main",
-          "revision": "44f4476cec22eb535e5d95efe2060a0f3e206d5c",
-          "version": null
+          "branch": null,
+          "revision": "174fd77843d7158ca8e8e4b4835b7552df0170db",
+          "version": "4.0.1"
         }
       }
     ]
