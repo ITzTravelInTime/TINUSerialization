@@ -1,18 +1,48 @@
 # TINUSerialization
 
-Library with useful extensions to `Decodable` and `Encodable` types, including simple JSON/Plist serialization and deserialization.
+Library with useful extensions to `Decodable` and `Encodable` (and so also `Codable`) types, including simple JSON/Plist serialization and deserialization.
 
 # Features and usage
 
+The main feature of this library are the extensions for `Decodable` and `Encodable` (and so also `Codable`) types.
 
+Here are some examples of intended usages:
 
 ```swift
+import Foundation
+import TINUSerialization
 
+///Tesing struct, since this package is an extension for `Equatable` and `Decodable` types this struct has been made `Codable` so it's both.
+struct Foo: Codable{
+    let bar_string: String
+    let bar_integer: Int
+}
+
+//Testing initialization of the struct
+let test = Foo.init(bar_string: "Test", bar_integer: 30)
+
+//testing de-serialization to json
+print("Obtained json string: \n" + (test.json(usingFormatting: .prettyPrinted) ?? "") + "\n\n")
+
+//testing de-serialization to plist
+print("Obtained plsit string: \n" + (test.plist() ?? "") + "\n\n")
+
+//creating new instance from a json deserialization
+print("Testing json de-serialization: \(Foo.init(fromJSONSerialisedString: test.json(usingFormatting: nil) ?? "")!) \n\n")
+
+//creating new instance from a plist deserialization
+print("Testing plist de-serialization: \(Foo.init(fromPlistSerialisedString: test.plist() ?? "")!) \n\n")
+
+//creating new instance from a remote json file
+print("Testing remote json de-serialization: \( Foo.init(fromRemoteFileAtUrl: "https://raw.githubusercontent.com/ITzTravelInTime/TINUSerialization/main/Test.json" )! ) \n\n")
+
+//creating new instance from a remote plist file
+print("Testing remote plist de-serialization: \( Foo.init(fromRemoteFileAtUrl: "https://raw.githubusercontent.com/ITzTravelInTime/TINUSerialization/main/Test.plist" )! ) \n\n")
 ```
 
 # Who should use this Library?
 
-This library should be used by Swift apps/programs that needs to operate with JSON/Plist files, either locally or remotely.
+This library should be used by Swift apps/programs that needs to operate with JSON/Plist serializaed objects, either locally or remotely.
 
 This code is tested on macOS, iPadOS, iOS and macCatalyst only.
 
