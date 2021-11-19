@@ -42,7 +42,7 @@ print("Testing remote plist de-serialization: \( Foo.init(fromRemoteFileAtUrl: "
 
 # Who should use this Library?
 
-This library should be used by Swift apps/programs that needs to operate with JSON/Plist serializaed objects, either locally or remotely.
+This library should be used by Swift apps/programs that needs to perform simple operations with JSON/Plist serializaed objects, either locally or remotely.
 
 This code is tested on macOS, iPadOS, iOS and macCatalyst only.
 
