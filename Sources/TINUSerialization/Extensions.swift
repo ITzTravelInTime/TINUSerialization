@@ -66,6 +66,11 @@ public extension Decodable{
      - Parameter fromJSONSerialisedString: The `String` containing JSON encoded data to be used for the initialization.
      */
     init?(fromJSONSerialisedString json: String){
+        
+        if json.isEmpty{
+            return nil
+        }
+        
         let decoder = JSONDecoder()
         
         guard let data = json.data(using: .utf8) else { return nil }
@@ -83,6 +88,11 @@ public extension Decodable{
      - Parameter fromPlistSerialisedString: The `String` containing Plist (Property list) encoded data to be used for the initialization.
      */
     init?(fromPlistSerialisedString plist: String){
+        
+        if plist.isEmpty{
+            return nil
+        }
+        
         let decoder = PropertyListDecoder()
         
         guard let data = plist.data(using: .utf8) else { return nil }
@@ -100,6 +110,11 @@ public extension Decodable{
      - Parameter fromSerializedString: The `String` containing serialized data in either JSON or Plist (Property list) formats to be used for the initialization.
      */
     init?(fromSerializedString string: String){
+        
+        if string.isEmpty{
+            return nil
+        }
+        
         //ineffiecient, there might be a better way
         if let _ = Self.init(fromJSONSerialisedString: string){
             self.init(fromJSONSerialisedString: string)
@@ -231,6 +246,10 @@ public extension Decodable{
      
      */
     init?(fromRemoteFileAtUrl url: String){
+        if url.isEmpty{
+            return nil
+        }
+        
         guard let url = URL(string: url) else{
             debug("Can't get valid URL object from the provvided url string")
             return nil
