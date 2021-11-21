@@ -166,6 +166,10 @@ public extension Decodable{
      - Parameter encoding: The `String.Encoding` to be used for the initialization of the readed text.
      */
     init?(fromFileAtPath file: String){
+        if file.isEmpty{
+            return nil
+        }
+        
         self.init(fromFileAt: URL(fileURLWithPath: file))
     }
     
