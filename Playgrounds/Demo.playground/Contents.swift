@@ -1,11 +1,16 @@
 import Foundation
 import TINUSerialization
+import TINURecovery
+
+TINURecovery.Printer.enabled = false
 
 ///Tesing struct, since this package is an extension for `Equatable` and `Decodable` types this struct has been made `Codable` so it's both.
 struct Foo: Codable{
     let bar_string: String
     let bar_integer: Int
 }
+
+//extension Dictionary: GenericCodable {  }
 
 //Testing initialization of the struct
 let test = Foo.init(bar_string: "Test", bar_integer: 30)
@@ -28,5 +33,6 @@ print("Testing remote json de-serialization: \( Foo.init(fromRemoteFileAtUrl: "h
 //creating new instance from a remote plist file
 print("Testing remote plist de-serialization: \( Foo.init(fromRemoteFileAtUrl: "https://raw.githubusercontent.com/ITzTravelInTime/TINUSerialization/main/Test.plist" )! ) \n\n")
 
+//print("Testing dictionary plist decoding: \([String: Any].init(fromRemoteFileAtUrl: "https://raw.githubusercontent.com/ITzTravelInTime/TINUSerialization/main/Test.plist")!)")
 
-
+//print("Testing dictionary json decoding: \([String: Any].init(fromRemoteFileAtUrl: "https://raw.githubusercontent.com/ITzTravelInTime/TINUSerialization/main/Test.json")!)")

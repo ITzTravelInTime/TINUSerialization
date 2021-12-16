@@ -13,117 +13,7 @@
 import Foundation
 import TINURecovery
 
-public extension Encodable{
-    /**
-     Gets the current object encoded as a JSON string.
-     
-     - Parameter usingFormatting: Use this parameter to change the readbility of the printed string.
-     
-     - Returns: A `String?` containing the current object encoded using the JSON format. `nil` will be returned if the encoding process fails.
-     */
-    func json(usingFormatting formatting: JSONEncoder.OutputFormatting! = nil) -> String?{
-        let encoder = JSONEncoder()
-        
-        if let f = formatting{
-            encoder.outputFormatting = f
-        }
-        
-        var str: String?
-        
-        do{
-            str = try String(data: encoder.encode(self), encoding: .utf8)
-        }catch{
-            return nil
-        }
-        
-        return str
-    }
-    
-    /**
-     Gets the current object encoded as a Plist (Property list) string.
-     
-     - Returns: A `String?` containing the current object encoded using the Plist (Property list) format. `nil` will be returned if the encoding process fails
-     */
-    func plist() -> String?{
-        let encoder = PropertyListEncoder()
-        encoder.outputFormat = .xml
-        var str: String?
-        
-        do{
-            str = try String(data: encoder.encode(self), encoding: .utf8)
-        }catch{
-            return nil
-        }
-        
-        return str
-    }
-}
-
-public extension Decodable{
-    /**
-     Initializes the current class from a string containg JSON serialized data.
-     
-     - Parameter fromJSONSerialisedString: The `String` containing JSON encoded data to be used for the initialization.
-     */
-    init?(fromJSONSerialisedString json: String){
-        
-        if json.isEmpty{
-            return nil
-        }
-        
-        let decoder = JSONDecoder()
-        
-        guard let data = json.data(using: .utf8) else { return nil }
-        
-        do{
-            self = try decoder.decode(Self.self, from: data)
-        }catch{
-            return nil
-        }
-    }
-    
-    /**
-     Initializes the current class from a string containg Plist (Property list) serialized data.
-     
-     - Parameter fromPlistSerialisedString: The `String` containing Plist (Property list) encoded data to be used for the initialization.
-     */
-    init?(fromPlistSerialisedString plist: String){
-        
-        if plist.isEmpty{
-            return nil
-        }
-        
-        let decoder = PropertyListDecoder()
-        
-        guard let data = plist.data(using: .utf8) else { return nil }
-        
-        do{
-            self = try decoder.decode(Self.self, from: data)
-        }catch{
-            return nil
-        }
-    }
-    
-    /**
-     Initializes the current class from a string containing serialized data in either JSON or Plist (Property list) formats.
-     
-     - Parameter fromSerializedString: The `String` containing serialized data in either JSON or Plist (Property list) formats to be used for the initialization.
-     */
-    init?(fromSerializedString string: String){
-        
-        if string.isEmpty{
-            return nil
-        }
-        
-        //ineffiecient, there might be a better way
-        if let _ = Self.init(fromJSONSerialisedString: string){
-            self.init(fromJSONSerialisedString: string)
-        }else if let _ = Self.init(fromPlistSerialisedString: string){
-            self.init(fromPlistSerialisedString: string)
-        }else{
-            return nil
-        }
-    }
+public extension ExternallyDecodable{
     
     /**
      Initializes the current class from a `Data` object encoding a string containing serialized information in either JSON or Plist (Property list) formats.
@@ -131,7 +21,7 @@ public extension Decodable{
      - Parameter fromData: The `Data` containing serialized information (as a string) in either JSON or Plist (Property list) formats to be used for the initialization.
      - Parameter encoding: The `String.Encoding` to be used for the interpreatation fo the provvided data.
      */
-    init?(fromData data: Data, usingEncoding encoding: String.Encoding = .utf8){
+    fileprivate init?(fromSerializedData data: Data, usingEncoding encoding: String.Encoding = .utf8){
         
         guard let string = String(data: data, encoding: encoding) else{
             debug("Can't convert the data to a valid string using the provvided encoding.")
@@ -171,7 +61,7 @@ public extension Decodable{
             return nil
         }
         
-        self.init(fromData: data, usingEncoding: encoding)
+        self.init(fromSerializedData: data, usingEncoding: encoding)
     }
     
     /**
@@ -235,7 +125,7 @@ public extension Decodable{
             return nil
         }
         
-        self.init(fromData: safeData, usingEncoding: encoding)
+        self.init(fromSerializedData: safeData, usingEncoding: encoding)
         
     }
     
@@ -258,3 +148,89 @@ public extension Decodable{
         self.init(fromRemoteFileAt: url )
     }
 }
+
+public extension GenericDecodable{
+    init?(fromJSONSerializedString string: String){
+        
+        guard let data = string.data(using: .utf8) else{
+            debug("Can't convert the string into valid utf8 data")
+            return nil
+        }
+        
+        do{
+            guard let arr = try JSONSerialization.jsonObject(with: data, options: []) as? Self else{
+                debug("Can't convert JSON data into valid NSArray")
+                return nil
+            }
+            
+            self = arr
+        }catch let err{
+            debug("Can't decode JSON data into valid NSArray, error: \(err.localizedDescription)")
+            return nil
+        }
+    }
+    
+    init?(fromPlistSerializedString string: String){
+        guard let data = string.data(using: .utf8) else{
+            debug("Can't convert the string into valid utf8 data")
+            return nil
+        }
+        
+        do{
+            guard let arr = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? Self else{
+                debug("Can't convert Plist data into valid NSArray")
+                return nil
+            }
+            
+            self = arr
+        }catch let err{
+            debug("Can't decode Plist data into valid NSArray, error: \(err.localizedDescription)")
+            return nil
+        }
+    }
+    
+    init?(fromSerializedString string: String){
+        if let json = Self.init(fromJSONSerializedString: string){
+            self = json
+        }else if let plist = Self.init(fromPlistSerializedString: string){
+            self = plist
+        }else{
+            return nil
+        }
+    }
+}
+
+public extension GenericEncodable{
+    /*
+     Gets the current object encoded as a Plist (Property list) string.
+     
+     - Returns: A `String?` containing the current object encoded using the Plist (Property list) format. `nil` will be returned if the encoding process fails
+     */
+    func plist() -> String?{
+        do{
+            let data = try PropertyListSerialization.data(fromPropertyList: self, format: .xml, options: 0)
+            
+            return String.init(data: data, encoding: .utf8)
+        }catch let err{
+            debug("Cant convert NSArray to valid Plist data: \(err.localizedDescription)")
+            return nil
+        }
+    }
+    
+    /**
+     Gets the current object encoded as a JSON string.
+     
+     - Returns: A `String?` containing the current object encoded using the JSON format. `nil` will be returned if the encoding process fails.
+     */
+    func json() -> String?{
+        do{
+            let data = try JSONSerialization.data(withJSONObject: self, options: [])
+            
+            return String.init(data: data, encoding: .utf8)
+        }catch let err{
+            debug("Cant convert NSArray to valid JSON data: \(err.localizedDescription)")
+            return nil
+        }
+    }
+}
+
