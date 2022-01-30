@@ -30,7 +30,8 @@ public extension Encodable{
         
         do{
             str = try String(data: encoder.encode(self), encoding: .utf8)
-        }catch{
+        }catch let err{
+            debug("Error while decoding json \(err.localizedDescription)")
             return nil
         }
         
@@ -49,7 +50,8 @@ public extension Encodable{
         
         do{
             str = try String(data: encoder.encode(self), encoding: .utf8)
-        }catch{
+        }catch let err{
+            debug("Error while decoding json \(err.localizedDescription)")
             return nil
         }
         

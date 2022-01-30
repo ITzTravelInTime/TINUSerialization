@@ -30,7 +30,8 @@ public extension Decodable{
         
         do{
             self = try decoder.decode(Self.self, from: data)
-        }catch{
+        }catch let err{
+            debug("Error while decoding json decodable \(err.localizedDescription)")
             return nil
         }
     }
@@ -52,7 +53,8 @@ public extension Decodable{
         
         do{
             self = try decoder.decode(Self.self, from: data)
-        }catch{
+        }catch let err{
+            debug("Error while decoding plist decodable \(err.localizedDescription)")
             return nil
         }
     }
