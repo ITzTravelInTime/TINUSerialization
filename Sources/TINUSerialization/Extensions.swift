@@ -16,15 +16,14 @@ import TINURecovery
 public extension ExternallyDecodable{
     
     /**
-     Initializes the current class from a `Data` object encoding a string containing serialized information in either JSON or Plist (Property list) formats.
+     Initializes the current class from a local file encoded in either JSON or Plist (Property list) formats.
      
-     - Parameter fromData: The `Data` containing serialized information (as a string) in either JSON or Plist (Property list) formats to be used for the initialization.
-     - Parameter encoding: The `String.Encoding` to be used for the interpreatation fo the provvided data.
+     - Parameter fromFileAt: The `URL` of the file to be used for initialization (must be either JSON or Plist fromattaed).
+     - Parameter usingEncoding: The `String.Encoding` to be used for the interpreatation fo the provvided data.
      */
-    fileprivate init?(fromSerializedData data: Data, usingEncoding encoding: String.Encoding = .utf8){
-        
-        guard let string = String(data: data, encoding: encoding) else{
-            debug("Can't convert the data to a valid string using the provvided encoding.")
+    init?(fromFileAt url: URL, usingEncoding encoding: String.Encoding = .utf8, descapeCharacters: Bool = false) {
+        guard let string = String.init(fromFileAt: url, usingEncoding: encoding, descapeCharacters: descapeCharacters) else{
+            debug("Can't retrive string from local file!")
             return nil
         }
         
@@ -34,48 +33,15 @@ public extension ExternallyDecodable{
     /**
      Initializes the current class from a local file encoded in either JSON or Plist (Property list) formats.
      
-     - Parameter fromFileAt: The `URL` of the file to be used for initialization (must be either JSON or Plist fromattaed).
-     - Parameter encoding: The `String.Encoding` to be used for the initialization of the readed text.
-     */
-    init?(fromFileAt url: URL, usingEncoding encoding: String.Encoding = .utf8) {
-        var isDirectory: ObjCBool = .init(booleanLiteral: false)
-        if !FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory){
-            debug("The provvided file doesn't exist")
-            return nil
-        }else if isDirectory.boolValue{
-            debug("The provvided file is a folder!")
-            return nil
-        }
-        
-        var tdata: Data!
-        
-        do{
-            tdata = try Data(contentsOf: url )
-        }catch let err{
-            debug("Can't get valid data from file, error: \(err.localizedDescription)")
-            return nil
-        }
-        
-        guard let data = tdata else{
-            debug("Didn't get any file data!")
-            return nil
-        }
-        
-        self.init(fromSerializedData: data, usingEncoding: encoding)
-    }
-    
-    /**
-     Initializes the current class from a local file encoded in either JSON or Plist (Property list) formats.
-     
      - Parameter fromFileAtPath: The `String` path of the file to be used for initialization (must be either JSON or Plist fromattaed).
-     - Parameter encoding: The `String.Encoding` to be used for the initialization of the readed text.
+     - Parameter usingEncoding: The `String.Encoding` to be used for the interpreatation fo the provvided data.
      */
-    init?(fromFileAtPath file: String){
+    init?(fromFileAtPath file: String, usingEncoding encoding: String.Encoding = .utf8, descapeCharacters: Bool = false){
         if file.isEmpty{
             return nil
         }
         
-        self.init(fromFileAt: URL(fileURLWithPath: file))
+        self.init(fromFileAt: URL(fileURLWithPath: file), usingEncoding: encoding, descapeCharacters: descapeCharacters)
     }
     
     /**
@@ -84,49 +50,14 @@ public extension ExternallyDecodable{
      - Parameter fromRemoteFileAt: The `URL` of the remote file to be used for initialization (must be either JSON or Plist fromattaed).
      
      */
-    init?(fromRemoteFileAt url: URL) {
+    init?(fromRemoteFileAt url: URL, descapeCharacters: Bool = false) {
         
-        if !SimpleReachability.status {
+        guard let string = String.init(fromRemoteFileAt: url, descapeCharacters: descapeCharacters) else{
+            debug("Can't get remote serialized data")
             return nil
         }
         
-        var data: Data?
-        var response: URLResponse?
-        var error: Error?
-
-        let semaphore = DispatchSemaphore(value: 0)
-
-        let dataTask = URLSession.shared.dataTask(with: URLRequest(url: url)) {
-            data = $0
-            response = $1
-            error = $2
-
-            semaphore.signal()
-        }
-        
-        dataTask.resume()
-
-        _ = semaphore.wait(timeout: .distantFuture)
-        
-        if let e = error {
-            debug("Error while getting the update information from the stored update link: \(e.localizedDescription)")
-            return nil
-        }
-        
-        guard let safeResponse = response else{
-            debug("Invalid or missing url request response")
-            return nil
-        }
-        
-        let encoding = String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringConvertIANACharSetNameToEncoding(NSString(string: safeResponse.textEncodingName ?? "utf8") as CFString)))
-        
-        guard let safeData = data else{
-            debug("Didn't get any remote data!")
-            return nil
-        }
-        
-        self.init(fromSerializedData: safeData, usingEncoding: encoding)
-        
+        self.init(fromSerializedString: string)
     }
     
     /**
@@ -135,7 +66,7 @@ public extension ExternallyDecodable{
      - Parameter fromRemoteFileAtUrl: The `String` of the url of the remote file to be used for initialization (must be either JSON or Plist fromattaed).
      
      */
-    init?(fromRemoteFileAtUrl url: String){
+    init?(fromRemoteFileAtUrl url: String, descapeCharacters: Bool = false){
         if url.isEmpty{
             return nil
         }
@@ -145,7 +76,7 @@ public extension ExternallyDecodable{
             return nil
         }
         
-        self.init(fromRemoteFileAt: url )
+        self.init(fromRemoteFileAt: url, descapeCharacters: descapeCharacters)
     }
 }
 
@@ -234,3 +165,108 @@ public extension GenericEncodable{
     }
 }
 
+extension String{
+    func descapingCharacters() -> Self{
+        var cpy = self.replacingOccurrences(of: "\\\"", with: "\"")
+        cpy = cpy.replacingOccurrences(of: "\\\\", with: "\\")
+        cpy = cpy.replacingOccurrences(of: "\\n", with: "\n")
+        cpy = cpy.replacingOccurrences(of: "\\r", with: "\r")
+        cpy = cpy.replacingOccurrences(of: "\\0", with: "")
+        return cpy
+    }
+    
+    mutating func descapeCharacters(){
+        self = self.descapingCharacters()
+    }
+    
+    init?(fromRemoteFileAtURL url: String, descapeCharacters: Bool = false){
+        if url.isEmpty{
+            return nil
+        }
+        
+        guard let url = URL(string: url) else{
+            debug("Can't convert the url string to a valid URL object")
+            return nil
+        }
+        
+        self.init(fromRemoteFileAt: url, descapeCharacters: descapeCharacters)
+    }
+    
+    init?(fromRemoteFileAt url: URL, descapeCharacters: Bool = false){
+        if !SimpleReachability.status {
+            return nil
+        }
+        
+        var data: Data?
+        var response: URLResponse?
+        var error: Error?
+
+        let semaphore = DispatchSemaphore(value: 0)
+
+        let dataTask = URLSession.shared.dataTask(with: URLRequest(url: url)) {
+            data = $0
+            response = $1
+            error = $2
+
+            semaphore.signal()
+        }
+        
+        dataTask.resume()
+
+        _ = semaphore.wait(timeout: .distantFuture)
+        
+        if let e = error {
+            debug("Error while getting the update information from the stored update link: \(e.localizedDescription)")
+            return nil
+        }
+        
+        guard let safeResponse = response else{
+            debug("Invalid or missing url request response")
+            return nil
+        }
+        
+        let encoding = String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringConvertIANACharSetNameToEncoding(NSString(string: safeResponse.textEncodingName ?? "utf8") as CFString)))
+        
+        guard let safeData = data else{
+            debug("Didn't get any remote data!")
+            return nil
+        }
+        
+        self.init(data: safeData, encoding: encoding)
+        
+        if descapeCharacters{
+            self.descapeCharacters()
+        }
+    }
+    
+    init?(fromFileAt url: URL, usingEncoding encoding: String.Encoding = .utf8, descapeCharacters: Bool = false) {
+        var isDirectory: ObjCBool = .init(booleanLiteral: false)
+        if !FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory){
+            debug("The provvided file doesn't exist")
+            return nil
+        }else if isDirectory.boolValue{
+            debug("The provvided file is a folder!")
+            return nil
+        }
+        
+        var tdata: Data!
+        
+        do{
+            tdata = try Data(contentsOf: url )
+        }catch let err{
+            debug("Can't get valid data from file, error: \(err.localizedDescription)")
+            return nil
+        }
+        
+        guard let data = tdata else{
+            debug("Didn't get any file data!")
+            return nil
+        }
+        
+        self.init(data: data, encoding: encoding)
+        
+        if descapeCharacters{
+            self.descapeCharacters()
+        }
+    }
+}
