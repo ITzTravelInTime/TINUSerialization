@@ -106,12 +106,7 @@ public extension Decodable{
             return nil
         }
         
-        guard let url = URL(string: file) else{
-            debug("Can't get valid URL object from the provvided url string")
-            return nil
-        }
-        
-        self.init(fromFileAt: url, usingEncoding: encoding, descapeCharacters: descapeCharacters)
+        self.init(fromFileAt: URL(fileURLWithPath: file), usingEncoding: encoding, descapeCharacters: descapeCharacters)
     }
     
     /**

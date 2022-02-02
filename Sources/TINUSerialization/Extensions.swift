@@ -179,19 +179,6 @@ extension String{
         self = self.descapingCharacters()
     }
     
-    init?(fromRemoteFileAtURL url: String, descapeCharacters: Bool = false){
-        if url.isEmpty{
-            return nil
-        }
-        
-        guard let url = URL(string: url) else{
-            debug("Can't convert the url string to a valid URL object")
-            return nil
-        }
-        
-        self.init(fromRemoteFileAt: url, descapeCharacters: descapeCharacters)
-    }
-    
     init?(fromRemoteFileAt url: URL, descapeCharacters: Bool = false){
         if !SimpleReachability.status {
             return nil
@@ -241,6 +228,7 @@ extension String{
     
     init?(fromFileAt url: URL, usingEncoding encoding: String.Encoding = .utf8, descapeCharacters: Bool = false) {
         var isDirectory: ObjCBool = .init(booleanLiteral: false)
+        
         if !FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory){
             debug("The provvided file doesn't exist")
             return nil
