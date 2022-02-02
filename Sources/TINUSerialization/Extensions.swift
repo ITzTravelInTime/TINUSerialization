@@ -167,11 +167,11 @@ public extension GenericEncodable{
 
 extension String{
     func descapingCharacters() -> Self{
-        var cpy = self.replacingOccurrences(of: "\\\"", with: "\"")
+        var cpy = self.replacingOccurrences(of: "\\\\\"", with: "\"")
+        cpy = cpy.replacingOccurrences(of: "\\\\n", with: "\n")
+        cpy = cpy.replacingOccurrences(of: "\\\\r", with: "\r")
+        cpy = cpy.replacingOccurrences(of: "\\\\0", with: "")
         cpy = cpy.replacingOccurrences(of: "\\\\", with: "\\")
-        cpy = cpy.replacingOccurrences(of: "\\n", with: "\n")
-        cpy = cpy.replacingOccurrences(of: "\\r", with: "\r")
-        cpy = cpy.replacingOccurrences(of: "\\0", with: "")
         return cpy
     }
     
