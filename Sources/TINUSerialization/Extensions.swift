@@ -138,8 +138,18 @@ public extension GenericEncodable{
      - Returns: A `String?` containing the current object encoded using the Plist (Property list) format. `nil` will be returned if the encoding process fails
      */
     func plist() -> String?{
+        return plist(usingOptions: 0)
+    }
+    
+    
+    /*
+     Gets the current object encoded as a Plist (Property list) string.
+     
+     - Returns: A `String?` containing the current object encoded using the Plist (Property list) format. `nil` will be returned if the encoding process fails
+     */
+    func plist(usingOptions options: PropertyListSerialization.WriteOptions) -> String?{
         do{
-            let data = try PropertyListSerialization.data(fromPropertyList: self, format: .xml, options: 0)
+            let data = try PropertyListSerialization.data(fromPropertyList: self, format: .xml, options: options)
             
             return String.init(data: data, encoding: .utf8)
         }catch let err{
@@ -154,8 +164,17 @@ public extension GenericEncodable{
      - Returns: A `String?` containing the current object encoded using the JSON format. `nil` will be returned if the encoding process fails.
      */
     func json() -> String?{
+        return json(usingOptions: [])
+    }
+    
+    /**
+     Gets the current object encoded as a JSON string.
+     
+     - Returns: A `String?` containing the current object encoded using the JSON format. `nil` will be returned if the encoding process fails.
+     */
+    func json(usingOptions options: JSONSerialization.WritingOptions) -> String?{
         do{
-            let data = try JSONSerialization.data(withJSONObject: self, options: [])
+            let data = try JSONSerialization.data(withJSONObject: self, options: options)
             
             return String.init(data: data, encoding: .utf8)
         }catch let err{
