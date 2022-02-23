@@ -90,13 +90,13 @@ public extension GenericDecodable{
         
         do{
             guard let arr = try JSONSerialization.jsonObject(with: data, options: []) as? Self else{
-                debug("Can't convert JSON data into valid NSArray")
+                debug("Can't convert JSON data into a valid instance")
                 return nil
             }
             
             self = arr
         }catch let err{
-            debug("Can't decode JSON data into valid NSArray, error: \(err.localizedDescription)")
+            debug("Can't decode JSON data into a valid instance, error: \(err.localizedDescription)")
             return nil
         }
     }
@@ -109,13 +109,13 @@ public extension GenericDecodable{
         
         do{
             guard let arr = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? Self else{
-                debug("Can't convert Plist data into valid NSArray")
+                debug("Can't convert Plist data into a valid instance")
                 return nil
             }
             
             self = arr
         }catch let err{
-            debug("Can't decode Plist data into valid NSArray, error: \(err.localizedDescription)")
+            debug("Can't decode Plist data into a valid instance, error: \(err.localizedDescription)")
             return nil
         }
     }
@@ -153,7 +153,7 @@ public extension GenericEncodable{
             
             return String.init(data: data, encoding: .utf8)
         }catch let err{
-            debug("Cant convert NSArray to valid Plist data: \(err.localizedDescription)")
+            debug("Cant convert instance to valid Plist data: \(err.localizedDescription)")
             return nil
         }
     }
@@ -178,7 +178,7 @@ public extension GenericEncodable{
             
             return String.init(data: data, encoding: .utf8)
         }catch let err{
-            debug("Cant convert NSArray to valid JSON data: \(err.localizedDescription)")
+            debug("Cant convert instance to valid JSON data: \(err.localizedDescription)")
             return nil
         }
     }
@@ -243,6 +243,8 @@ extension String{
         if descapeCharacters{
             self.descapeCharacters()
         }
+        
+        debug("Obtained remote string: \n\n" + self)
     }
     
     init?(fromFileAt url: URL, usingEncoding encoding: String.Encoding = .utf8, descapeCharacters: Bool = false) {
