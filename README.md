@@ -2,7 +2,7 @@
 
 Library with useful extensions to `Decodable` and `Encodable` (and so also `Codable`) types, including simple JSON/Plist serialization and deserialization.
 
-# Features and usage
+## Features and usage
 
 The main feature of this library are the extensions for `Decodable` and `Encodable` (and so also `Codable`) types.
 
@@ -40,35 +40,35 @@ print("Testing remote json de-serialization: \( Foo.init(fromRemoteFileAtUrl: "h
 print("Testing remote plist de-serialization: \( Foo.init(fromRemoteFileAtUrl: "https://raw.githubusercontent.com/ITzTravelInTime/TINUSerialization/main/Test.plist" )! ) \n\n")
 ```
 
-# Who should use this Library?
+## Who should use this Library?
 
 This library should be used by Swift apps/programs that needs to perform simple operations with JSON/Plist serializaed objects, either locally or remotely.
 
 This code is tested on macOS, iPadOS, iOS and macCatalyst only.
 
-# About the project
+## About the project
 
 This code was created as part of my TINU project (https://github.com/ITzTravelInTime/TINU) and has been separated and made into it's own library to make the main project's source less complex and more focused on it's aim. 
 
 Also having it as it's own library allows for code to be updated separately and so various versions of the main TINU app will be able to be compiled all with the latest version of this library.
 
-# Libraries used
+## Libraries used
 
  - [ITzTravelInTime/TINURecovery](https://github.com/ITzTravelInTime/TINURecovery)
  - [ITzTravelInTime/SwiftLoggedPrint](https://github.com/ITzTravelInTime/SwiftLoggedPrint)
 
-# Credits
+## Credits
 
  - [ITzTravelInTime (Pietro Caruso)](https://github.com/ITzTravelInTime) - Project creator and main developer.
 
-# Contacts
+## Contacts
 
  - ITzTravelInTime (Pietro Caruso): piecaruso97@gmail.com
 
-# Legal info
+## Legal info
 
 TINUSerialization: A library for the usage of serialization formats in Swift.
-Copyright (C) 2021 Pietro Caruso
+Copyright (C) 2021-2022 Pietro Caruso
 
 This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
 
