@@ -12,6 +12,7 @@
 import Foundation
 import TINURecovery
 
+
 extension String{
     func descapingCharacters() -> Self{
         var cpy = self.replacingOccurrences(of: "\\\\\"", with: "\"")
@@ -26,10 +27,13 @@ extension String{
         self = self.descapingCharacters()
     }
     
+#if !(os(Linux) || os(Windows))
     init?(fromRemoteFileAt url: URL, descapeCharacters: Bool = false){
+        #if !os(watchOS)
         if !SimpleReachability.status {
             return nil
         }
+        #endif
         
         var data: Data?
         var response: URLResponse?
@@ -74,6 +78,7 @@ extension String{
         
         debug("Obtained remote string: \n\n" + self)
     }
+#endif
     
     init?(fromFileAt url: URL, usingEncoding encoding: String.Encoding = .utf8, descapeCharacters: Bool = false) {
         var isDirectory: ObjCBool = .init(booleanLiteral: false)
@@ -107,3 +112,4 @@ extension String{
         }
     }
 }
+

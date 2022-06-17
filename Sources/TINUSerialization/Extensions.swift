@@ -44,6 +44,7 @@ public extension FastDecodable{
         self.init(fromFileAt: URL(fileURLWithPath: file), usingEncoding: encoding, descapeCharacters: descapeCharacters)
     }
     
+    #if !(os(Linux) || os(Windows))
     /**
      Initializes the current class from a remote file encoded in either JSON or Plist (Property list) formats.
      
@@ -78,6 +79,7 @@ public extension FastDecodable{
         
         self.init(fromRemoteFileAt: url, descapeCharacters: descapeCharacters)
     }
+    #endif
 }
 
 extension FastCodable where Self: Codable{}

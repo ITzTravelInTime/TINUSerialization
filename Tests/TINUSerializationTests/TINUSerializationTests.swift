@@ -44,11 +44,13 @@ final class TINUSerializationTests: XCTestCase {
         XCTAssertNotNil(fromJSONu, "De-serialization from json universal method failure")
         XCTAssertEqual(fromJSONu, test, "starter instance is not equal to the json-universal-obtained instance")
         
+        #if !(os(watchOS) || os(Linux) || os(Windows))
         if TINURecovery.SimpleReachability.status{
             XCTAssertEqual(Foo.init(fromRemoteFileAtUrl: "https://raw.githubusercontent.com/ITzTravelInTime/TINUSerialization/main/Test.json"), test, "Remote json instance desn't match the reference one.")
             
             XCTAssertEqual(Foo.init(fromRemoteFileAtUrl: "https://raw.githubusercontent.com/ITzTravelInTime/TINUSerialization/main/Test.plist" ), test, "Remote plist instance desn't match the reference one.")
         }
+        #endif
     }
 }
 
