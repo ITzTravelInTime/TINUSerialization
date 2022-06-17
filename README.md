@@ -12,23 +12,25 @@ Here are some examples of intended usages:
 import Foundation
 import TINUSerialization
 
-///Tesing struct, since this package is an extension for `Equatable` and `Decodable` types this struct has been made `Codable` so it's both.
-struct Foo: Codable{
+///Tesing struct, to be able to use this library it must conform to `Codable` and `FastCodable` or `GenericCodable` and `FastCdable`.
+struct Foo: Codable, FastCodable{
     let bar_string: String
     let bar_integer: Int
 }
 
+//extension Dictionary: GenericCodable {  }
+
 //Testing initialization of the struct
 let test = Foo.init(bar_string: "Test", bar_integer: 30)
 
-//testing de-serialization to json
+//testing serialization to json
 print("Obtained json string: \n" + (test.json(usingFormatting: .prettyPrinted) ?? "") + "\n\n")
 
-//testing de-serialization to plist
+//testing serialization to plist
 print("Obtained plsit string: \n" + (test.plist() ?? "") + "\n\n")
 
 //creating new instance from a json deserialization
-print("Testing json de-serialization: \(Foo.init(fromJSONSerialisedString: test.json(usingFormatting: nil) ?? "")!) \n\n")
+print("Testing json de-serialization: \(Foo.init(fromJSONSerializedString: test.json(usingFormatting: nil) ?? "")!) \n\n")
 
 //creating new instance from a plist deserialization
 print("Testing plist de-serialization: \(Foo.init(fromPlistSerialisedString: test.plist() ?? "")!) \n\n")
@@ -42,9 +44,9 @@ print("Testing remote plist de-serialization: \( Foo.init(fromRemoteFileAtUrl: "
 
 ## Who should use this Library?
 
-This library should be used by Swift apps/programs that needs to perform simple operations with JSON/Plist serializaed objects, either locally or remotely.
+This library should be used by Swift apps/programs that needs to perform simple operations with JSON/Plist serializaed objects, either by fetching data locally or remotely.
 
-This code is tested on macOS, iPadOS, iOS and macCatalyst only.
+This code is tested on apple platfroms and the official Swift docker container.
 
 ## About the project
 
