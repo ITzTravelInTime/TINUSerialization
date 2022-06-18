@@ -11,7 +11,9 @@
 
 
 import Foundation
+#if !(os(watchOS) || os(Linux) || os(Windows))
 import TINURecovery
+#endif
 
 public extension FastDecodable{
     

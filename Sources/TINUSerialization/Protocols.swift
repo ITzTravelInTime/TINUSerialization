@@ -10,7 +10,6 @@
  */
 
 import Foundation
-import TINURecovery
 
 ///Protocol for objects to implement basic json/plist deserialization features.
 public protocol FastDecodable{

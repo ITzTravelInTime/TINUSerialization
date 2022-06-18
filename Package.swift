@@ -28,7 +28,7 @@ let package = Package(
             name: "TINUSerialization",
             dependencies: [
                 .byName(name: "SwiftLoggedPrint"),
-                .byName(name: "TINURecovery")
+                .byNameItem(name: "TINURecovery", condition: .when(platforms: [.macOS, .macCatalyst, .iOS, .tvOS, .driverKit]))
             ]),
         .testTarget(
             name: "TINUSerializationTests",

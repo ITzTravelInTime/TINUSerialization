@@ -10,8 +10,10 @@
  */
 
 import Foundation
-import TINURecovery
 
+#if !(os(watchOS) || os(Linux) || os(Windows))
+import TINURecovery
+#endif
 
 extension String{
     func descapingCharacters() -> Self{

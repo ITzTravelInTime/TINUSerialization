@@ -3,7 +3,10 @@
 
 import XCTest
 @testable import TINUSerialization
+
+#if !(os(watchOS) || os(Linux) || os(Windows))
 import TINURecovery
+#endif
 
 final class TINUSerializationTests: XCTestCase {
     func testBase() throws {
